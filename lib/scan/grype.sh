@@ -9,8 +9,6 @@ SCRIPT_BASE_DIR="/opt/repo-security"
 source "${SCRIPT_BASE_DIR}/conf/repo-security.conf"
 
 GRYPE_BIN=$(command -v grype)
-GRYPE_SEVERITY_FAIL="critical,high"
-GRYPE_SEVERITY_WARN="medium"
 
 scan_grype() {
     local package_path="$1"
@@ -36,13 +34,28 @@ scan_grype() {
         return 0
     fi
 
-    # Scan auf CRITICAL/HIGH
     local output
+    local exit_code
+
+    # Scan auf CRITICAL
     output=$(${GRYPE_BIN} "dir:${extract_dir}" \
-        --fail-on "${GRYPE_SEVERITY_FAIL}" \
+        --fail-on "critical" \
         --output json \
         --quiet 2>&1)
-    local exit_code=$?
+    exit_code=$?
+
+    if [ ${exit_code} -ne 0 ]; then
+        rm -rf "${extract_dir}"
+        echo "${output}"
+        return 2
+    fi
+
+    # Scan auf HIGH
+    output=$(${GRYPE_BIN} "dir:${extract_dir}" \
+        --fail-on "high" \
+        --output json \
+        --quiet 2>&1)
+    exit_code=$?
 
     if [ ${exit_code} -ne 0 ]; then
         rm -rf "${extract_dir}"
@@ -52,7 +65,7 @@ scan_grype() {
 
     # Scan auf MEDIUM
     output=$(${GRYPE_BIN} "dir:${extract_dir}" \
-        --fail-on "${GRYPE_SEVERITY_WARN}" \
+        --fail-on "medium" \
         --output json \
         --quiet 2>&1)
     exit_code=$?
