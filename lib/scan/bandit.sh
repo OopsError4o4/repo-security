@@ -6,7 +6,8 @@
 # Exit 0 = OK, Exit 1 = WARN, Exit 2 = FAIL
 # ============================================================
 
-source "$(dirname "$0")/../../conf/repo-security.conf"
+SCRIPT_BASE_DIR="/opt/repo-security"
+source "${SCRIPT_BASE_DIR}/conf/repo-security.conf"
 
 BANDIT_BIN=$(command -v bandit)
 EXTRACT_DIR="/tmp/repo-security-extract"

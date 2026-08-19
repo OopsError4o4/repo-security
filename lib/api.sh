@@ -4,7 +4,8 @@
 # Repomanager API-Funktionen
 # ============================================================
 
-source "$(dirname "$0")/../conf/repo-security.conf"
+SCRIPT_BASE_DIR="/opt/repo-security"
+source "${SCRIPT_BASE_DIR}/conf/repo-security.conf"
 
 # ============================================================
 # Hilfsfunktionen
