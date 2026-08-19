@@ -43,6 +43,14 @@ api_get_repo_id() {
         ".results[] | select(.Name==\"${repo_name}\") | .Id"
 }
 
+# Package-Type eines Repos aus der API ermitteln
+api_get_package_type() {
+    local repo_name="$1"
+
+    api_get_repos | jq -r \
+        ".results[] | select(.Name==\"${repo_name}\") | .Package_type"
+}
+
 # Snapshots eines Repos abrufen
 api_get_snapshots() {
     local repo_id="$1"
@@ -58,6 +66,57 @@ api_get_latest_snapshot_id() {
 
     api_get_snapshots "${repo_id}" | jq -r \
         ".results | sort_by(.Date, .Time) | last | .Id"
+}
+
+# ============================================================
+# Filesystem-Funktionen für Paketliste
+# ============================================================
+
+# Neuestes Snapshot-Datum eines Repos ermitteln
+api_get_latest_snapshot_date() {
+    local repo_name="$1"
+    local package_type="$2"
+
+    local base_path
+    if [ "${package_type}" = "rpm" ]; then
+        base_path="/mnt/repomanager-repo/rpm/${repo_name}"
+    else
+        base_path="/mnt/repomanager-repo/deb/${repo_name}"
+    fi
+
+    find "${base_path}" -mindepth 2 -maxdepth 2 -type d 2>/dev/null | \
+        grep -oP '\d{4}-\d{2}-\d{2}' | sort | tail -1
+}
+
+# Paketliste eines Repos aus dem Filesystem holen
+api_get_packages() {
+    local repo_name="$1"
+    local snapshot_date="$2"
+    local package_type="$3"
+
+    local base_path
+    if [ "${package_type}" = "rpm" ]; then
+        base_path="/mnt/repomanager-repo/rpm/${repo_name}"
+    else
+        base_path="/mnt/repomanager-repo/deb/${repo_name}"
+    fi
+
+    # Snapshot-Datum ermitteln wenn nicht angegeben
+    if [ -z "${snapshot_date}" ]; then
+        snapshot_date=$(api_get_latest_snapshot_date "${repo_name}" "${package_type}")
+    fi
+
+    if [ -z "${snapshot_date}" ]; then
+        echo "FEHLER: Kein Snapshot gefunden unter ${base_path}"
+        return 1
+    fi
+
+    # Pakete auflisten
+    if [ "${package_type}" = "rpm" ]; then
+        find "${base_path}" -path "*/${snapshot_date}/*" -name "*.rpm" 2>/dev/null
+    else
+        find "${base_path}" -path "*/${snapshot_date}/*" -name "*.deb" 2>/dev/null
+    fi
 }
 
 # ============================================================
