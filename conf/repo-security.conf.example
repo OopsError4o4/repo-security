@@ -1,0 +1,41 @@
+# ============================================================
+# repo-security.conf
+# Zentrale Konfiguration für die Security-Pipeline
+# ============================================================
+
+# --- Repomanager ---
+REPOMANAGER_URL="http://YOUR_REPOMANAGER_IP:PORT"
+REPOMANAGER_API_KEY="ak_CHANGEME"
+
+# --- MariaDB ---
+DB_HOST="localhost"
+DB_PORT="3306"
+DB_NAME="repo_security"
+DB_USER="repo_security"
+DB_PASS="CHANGEME"
+
+# --- Logging ---
+LOG_DIR="/opt/repo-security/logs"
+LOG_FILE="${LOG_DIR}/repo-security.log"
+
+# --- Scan-Verhalten ---
+# Bei FAIL eines Scan-Tools: promote blockieren (true/false)
+BLOCK_ON_FAIL="true"
+
+# --- Alert ---
+ALERT_MAIL_TO="admin@example.com"
+ALERT_MAIL_FROM="repo-security@example.com"
+ALERT_MAIL_SMTP="localhost"
+
+# --- Wazuh ---
+WAZUH_AGENT_LOG="/var/ossec/logs/active-responses.log"
+
+# --- Scan-Tools aktivieren/deaktivieren ---
+SCAN_TRIVY="true"
+SCAN_GRYPE="true"
+SCAN_CLAMAV="true"
+SCAN_YARA="true"
+SCAN_RKHUNTER="true"
+SCAN_CHKROOTKIT="true"
+SCAN_BANDIT="true"
+SCAN_CPPCHECK="true"
