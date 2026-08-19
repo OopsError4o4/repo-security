@@ -16,7 +16,8 @@ api_login() {
 
     curl -s -c "${cookie_file}" \
         -X POST \
-        -d "username=${REPOMANAGER_USER}&password=${REPOMANAGER_PASS}" \
+        -d "authType=local&username=${REPOMANAGER_USER}&password=${REPOMANAGER_PASS}" \
+        -L \
         "${REPOMANAGER_URL}/login" > /dev/null
 
     echo "${cookie_file}"
