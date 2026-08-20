@@ -1,0 +1,21 @@
+---
+# ============================================================
+# site.yml
+# Einstiegspunkt — importiert alle repo-security Playbooks
+# ============================================================
+# Verwendung:
+#   cp inventory.example inventory
+#   cp group_vars/all.yml.example group_vars/all.yml
+#   # all.yml anpassen
+#   ansible-playbook -i inventory site.yml
+#
+# Einzelne Playbooks ausführen:
+#   ansible-playbook -i inventory 01_dependencies.yml
+# ============================================================
+
+- import_playbook: 01_dependencies.yml
+- import_playbook: 02_mariadb.yml
+- import_playbook: 03_clamav.yml
+- import_playbook: 04_repo-security.yml
+- import_playbook: 05_yara-rules.yml
+- import_playbook: 06_cron.yml

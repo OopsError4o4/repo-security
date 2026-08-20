@@ -1,0 +1,36 @@
+---
+# ============================================================
+# 03_clamav.yml
+# Konfiguriert ClamAV und freshclam (inkl. Proxy)
+# ============================================================
+
+- name: Configure ClamAV
+  hosts: repo_security
+  become: true
+
+  tasks:
+
+    - name: Configure freshclam proxy
+      ansible.builtin.blockinfile:
+        path: /etc/freshclam.conf
+        marker: "# {mark} ANSIBLE MANAGED PROXY CONFIG"
+        block: |
+          HTTPProxyServer {{ http_proxy | regex_replace('^https?://([^:]+).*', '\1') }}
+          HTTPProxyPort {{ http_proxy | regex_replace('^.*:([0-9]+).*$', '\1') }}
+      when: http_proxy is defined and http_proxy != ""
+
+    - name: Set correct permissions on ClamAV database directory
+      ansible.builtin.file:
+        path: /var/lib/clamav
+        owner: "993"
+        group: "993"
+        recurse: true
+
+    - name: Update ClamAV database
+      ansible.builtin.command:
+        cmd: freshclam
+      environment:
+        HTTPS_PROXY: "{{ https_proxy | default('') }}"
+        HTTP_PROXY: "{{ http_proxy | default('') }}"
+      changed_when: true
+      failed_when: false

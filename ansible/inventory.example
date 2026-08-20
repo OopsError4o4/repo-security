@@ -1,0 +1,15 @@
+# ============================================================
+# inventory.example
+# Beispiel-Inventory für repo-security Deployment
+# ============================================================
+# Kopieren nach inventory und anpassen:
+# cp inventory.example inventory
+
+[repo_security]
+rbr-repo-01 ansible_host=10.250.111.69 ansible_user=root
+
+# Mit SSH-Key:
+# rbr-repo-01 ansible_host=10.250.111.69 ansible_user=root ansible_ssh_private_key_file=~/.ssh/id_rsa
+
+# Mehrere Hosts:
+# rbr-repo-02 ansible_host=10.250.111.70 ansible_user=root

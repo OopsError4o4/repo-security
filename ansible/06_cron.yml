@@ -1,0 +1,39 @@
+---
+# ============================================================
+# 06_cron.yml
+# Richtet den täglichen Cron-Job für repo-security ein
+# ============================================================
+
+- name: Setup cron job
+  hosts: repo_security
+  become: true
+
+  tasks:
+
+    - name: Create cron job for each repo
+      ansible.builtin.cron:
+        name: "repo-security {{ item }}"
+        hour: "{{ cron_hour }}"
+        minute: "{{ cron_minute }}"
+        job: "{{ repo_security_dir }}/repo-security.sh --repo {{ item }} --promote >> {{ repo_security_dir }}/logs/cron.log 2>&1"
+        user: root
+        state: present
+      loop: "{{ cron_repos }}"
+
+    - name: Create cron job for daily ClamAV DB update
+      ansible.builtin.cron:
+        name: "freshclam daily update"
+        hour: "1"
+        minute: "0"
+        job: "freshclam >> /var/log/freshclam-cron.log 2>&1"
+        user: root
+        state: present
+
+    - name: Create cron job for daily YARA rules update
+      ansible.builtin.cron:
+        name: "yara-rules daily update"
+        hour: "1"
+        minute: "30"
+        job: "cd {{ repo_security_dir }}/yara-rules && git pull >> {{ repo_security_dir }}/logs/yara-update.log 2>&1"
+        user: root
+        state: present

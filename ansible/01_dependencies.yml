@@ -1,0 +1,71 @@
+---
+# ============================================================
+# 01_dependencies.yml
+# Installiert alle benötigten Tools und Abhängigkeiten
+# ============================================================
+
+- name: Install dependencies
+  hosts: repo_security
+  become: true
+
+  tasks:
+
+    - name: Install EPEL repository
+      ansible.builtin.dnf:
+        name: epel-release
+        state: present
+
+    - name: Enable CRB repository
+      ansible.builtin.command:
+        cmd: dnf config-manager --enable crb
+      changed_when: false
+
+    - name: Install base packages
+      ansible.builtin.dnf:
+        name:
+          - git
+          - curl
+          - jq
+          - sqlite
+          - dos2unix
+          - mariadb-server
+          - mariadb
+          - python3-PyMySQL
+          - rpm-build
+          - cpio
+          - clamav
+          - clamav-update
+          - cppcheck
+          - yara
+        state: present
+
+    - name: Add Trivy repository
+      ansible.builtin.copy:
+        dest: /etc/yum.repos.d/trivy.repo
+        content: |
+          [trivy]
+          name=Trivy repository
+          baseurl=https://aquasecurity.github.io/trivy-repo/rpm/releases/$basearch/
+          gpgcheck=1
+          enabled=1
+          gpgkey=https://aquasecurity.github.io/trivy-repo/rpm/public.key
+        mode: '0644'
+
+    - name: Install Trivy
+      ansible.builtin.dnf:
+        name: trivy
+        state: present
+
+    - name: Install Grype
+      ansible.builtin.shell:
+        cmd: curl -sSfL https://raw.githubusercontent.com/anchore/grype/main/install.sh | sh -s -- -b /usr/local/bin
+        creates: /usr/local/bin/grype
+      environment:
+        HTTPS_PROXY: "{{ https_proxy | default('') }}"
+        HTTP_PROXY: "{{ http_proxy | default('') }}"
+
+    - name: Ensure MariaDB is started and enabled
+      ansible.builtin.systemd:
+        name: mariadb
+        state: started
+        enabled: true

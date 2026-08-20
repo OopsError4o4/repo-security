@@ -1,0 +1,59 @@
+---
+# ============================================================
+# 04_repo-security.yml
+# Klont repo-security und deployt die Konfiguration
+# ============================================================
+
+- name: Deploy repo-security
+  hosts: repo_security
+  become: true
+
+  tasks:
+
+    - name: Clone repo-security repository
+      ansible.builtin.git:
+        repo: "{{ repo_security_git_url }}"
+        dest: "{{ repo_security_dir }}"
+        version: main
+        force: true
+      environment:
+        HTTPS_PROXY: "{{ https_proxy | default('') }}"
+        HTTP_PROXY: "{{ http_proxy | default('') }}"
+
+    - name: Set executable permissions on main script
+      ansible.builtin.file:
+        path: "{{ repo_security_dir }}/repo-security.sh"
+        mode: '0755'
+
+    - name: Set executable permissions on scan modules
+      ansible.builtin.file:
+        path: "{{ item }}"
+        mode: '0755'
+      with_fileglob:
+        - "{{ repo_security_dir }}/lib/scan/*.sh"
+
+    - name: Create logs directory
+      ansible.builtin.file:
+        path: "{{ repo_security_dir }}/logs"
+        state: directory
+        mode: '0755'
+
+    - name: Deploy repo-security.conf from template
+      ansible.builtin.template:
+        src: templates/repo-security.conf.j2
+        dest: "{{ repo_security_dir }}/conf/repo-security.conf"
+        mode: '0600'
+
+    - name: Convert line endings to Unix format
+      ansible.builtin.shell:
+        cmd: find {{ repo_security_dir }} -name "*.sh" -exec dos2unix {} \; && dos2unix {{ repo_security_dir }}/conf/repo-security.conf
+      changed_when: false
+
+    - name: Initialize database tables
+      ansible.builtin.shell:
+        cmd: |
+          source {{ repo_security_dir }}/conf/repo-security.conf
+          source {{ repo_security_dir }}/lib/db.sh
+          db_init
+        executable: /bin/bash
+      changed_when: false

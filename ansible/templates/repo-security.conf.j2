@@ -1,0 +1,55 @@
+# ============================================================
+# repo-security.conf
+# Zentrale Konfiguration für die Security-Pipeline
+# Generiert durch Ansible — nicht manuell bearbeiten
+# ============================================================
+
+# --- Repomanager ---
+REPOMANAGER_URL="{{ repomanager_url }}"
+REPOMANAGER_API_KEY="{{ repomanager_api_key }}"
+
+# --- MariaDB ---
+DB_HOST="{{ db_host }}"
+DB_PORT="{{ db_port }}"
+DB_NAME="{{ db_name }}"
+DB_USER="{{ db_user }}"
+DB_PASS="{{ db_pass }}"
+
+# --- Logging ---
+LOG_DIR="{{ repo_security_dir }}/logs"
+LOG_FILE="{{ repo_security_dir }}/logs/repo-security.log"
+
+# --- Scan-Verhalten ---
+BLOCK_ON_FAIL="true"
+
+# --- Alert ---
+ALERT_MAIL_TO="{{ alert_mail_to }}"
+ALERT_MAIL_FROM="{{ alert_mail_from }}"
+ALERT_MAIL_SMTP="{{ alert_mail_smtp }}"
+
+# --- Wazuh ---
+WAZUH_AGENT_LOG="{{ wazuh_agent_log }}"
+
+# --- Scan-Tools aktivieren/deaktivieren ---
+SCAN_TRIVY="{{ scan_trivy }}"
+SCAN_GRYPE="{{ scan_grype }}"
+SCAN_CLAMAV="{{ scan_clamav }}"
+SCAN_YARA="{{ scan_yara }}"
+SCAN_RKHUNTER="{{ scan_rkhunter }}"
+SCAN_CHKROOTKIT="{{ scan_chkrootkit }}"
+SCAN_BANDIT="{{ scan_bandit }}"
+SCAN_CPPCHECK="{{ scan_cppcheck }}"
+
+# --- Repomanager Login (für ajax/controller.php) ---
+REPOMANAGER_USER="{{ repomanager_user }}"
+REPOMANAGER_PASS="{{ repomanager_pass }}"
+
+# --- SQLite DB Pfad ---
+# Docker:  /var/lib/docker/volumes/repomanager_repomanager-data/_data/db/repomanager.db
+# Podman:  /var/lib/containers/storage/volumes/repomanager_repomanager-data/_data/db/repomanager.db
+REPOMANAGER_DB_PATH="{{ repomanager_db_path }}"
+
+# --- Proxy ---
+HTTP_PROXY="{{ http_proxy | default('') }}"
+HTTPS_PROXY="{{ https_proxy | default('') }}"
+NO_PROXY="{{ no_proxy | default('') }}"

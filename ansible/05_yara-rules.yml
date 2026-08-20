@@ -1,0 +1,31 @@
+---
+# ============================================================
+# 05_yara-rules.yml
+# Klont die Neo23x0/signature-base YARA-Rules
+# ============================================================
+
+- name: Deploy YARA rules
+  hosts: repo_security
+  become: true
+
+  tasks:
+
+    - name: Clone Neo23x0 signature-base YARA rules
+      ansible.builtin.git:
+        repo: "{{ yara_rules_git_url }}"
+        dest: "{{ repo_security_dir }}/yara-rules"
+        version: master
+        force: true
+      environment:
+        HTTPS_PROXY: "{{ https_proxy | default('') }}"
+        HTTP_PROXY: "{{ http_proxy | default('') }}"
+
+    - name: Update YARA rules (if already cloned)
+      ansible.builtin.git:
+        repo: "{{ yara_rules_git_url }}"
+        dest: "{{ repo_security_dir }}/yara-rules"
+        version: master
+        update: true
+      environment:
+        HTTPS_PROXY: "{{ https_proxy | default('') }}"
+        HTTP_PROXY: "{{ http_proxy | default('') }}"
