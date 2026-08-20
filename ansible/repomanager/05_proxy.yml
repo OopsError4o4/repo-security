@@ -1,65 +1,47 @@
 ---
 # ============================================================
 # 05_proxy.yml
-# Konfiguriert den Proxy in den Repomanager-Settings via API
+# Konfiguriert den Proxy in der Repomanager SQLite-DB
 # ============================================================
 
 - name: Configure Repomanager proxy settings
   hosts: repomanager
   become: true
 
+  vars:
+    repomanager_sqlite_db: "/var/lib/containers/storage/volumes/repomanager_repomanager-data/_data/db/repomanager.db"
+
   tasks:
 
-    - name: Wait for Repomanager to be ready
-      ansible.builtin.uri:
-        url: "http://localhost:{{ repomanager_port }}/login"
-        status_code: 200
-      register: result
-      until: result.status == 200
-      retries: 10
-      delay: 5
+    - name: Install sqlite
+      ansible.builtin.dnf:
+        name: sqlite
+        state: present
 
-    - name: Login to Repomanager and get session cookie
-      ansible.builtin.uri:
-        url: "http://localhost:{{ repomanager_port }}/login"
-        method: POST
-        body_format: form-urlencoded
-        body:
-          authType: local
-          username: "{{ repomanager_admin_user }}"
-          password: "{{ repomanager_admin_pass }}"
-        follow_redirects: all
-        status_code: 200
-      register: login_result
-
-    - name: Set proxy in Repomanager settings
-      ansible.builtin.uri:
-        url: "http://localhost:{{ repomanager_port }}/ajax/controller.php"
-        method: POST
-        headers:
-          Cookie: "{{ login_result.cookies_string }}"
-          X-Requested-With: XMLHttpRequest
-        body_format: form-urlencoded
-        body:
-          controller: general
-          action: settings
-          type: proxy
-          proxy: "{{ http_proxy }}"
-        status_code: 200
+    - name: Set proxy in Repomanager SQLite database
+      ansible.builtin.shell:
+        cmd: >
+          sqlite3 {{ repomanager_sqlite_db }}
+          "UPDATE settings SET PROXY='{{ http_proxy }}';"
       when: http_proxy is defined and http_proxy != ""
+      changed_when: true
 
-    - name: Clear proxy in Repomanager settings
-      ansible.builtin.uri:
-        url: "http://localhost:{{ repomanager_port }}/ajax/controller.php"
-        method: POST
-        headers:
-          Cookie: "{{ login_result.cookies_string }}"
-          X-Requested-With: XMLHttpRequest
-        body_format: form-urlencoded
-        body:
-          controller: general
-          action: settings
-          type: proxy
-          proxy: ""
-        status_code: 200
+    - name: Clear proxy in Repomanager SQLite database
+      ansible.builtin.shell:
+        cmd: >
+          sqlite3 {{ repomanager_sqlite_db }}
+          "UPDATE settings SET PROXY='';"
       when: http_proxy is not defined or http_proxy == ""
+      changed_when: true
+
+    - name: Verify proxy setting
+      ansible.builtin.shell:
+        cmd: >
+          sqlite3 {{ repomanager_sqlite_db }}
+          "SELECT PROXY FROM settings;"
+      register: proxy_check
+      changed_when: false
+
+    - name: Show proxy setting
+      ansible.builtin.debug:
+        msg: "Repomanager Proxy gesetzt auf: {{ proxy_check.stdout }}"
