@@ -1,3 +1,4 @@
 conf/repo-security.conf
 logs/*.log
 /tmp/repo-security-extract/
+yara-rules/
