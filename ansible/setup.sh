@@ -249,11 +249,10 @@ config_mode() {
     print_info "Möchtest du die Installation manuell konfigurieren"
     print_info "oder dich durch den Setup-Guide führen lassen?"
     echo ""
-
-    local choice
-    choice=$(ask_choice "Installationsmodus wählen:" \
-        "Geführte Installation (empfohlen)" \
-        "Manuelle Installation (all.yml selbst bearbeiten)")
+    echo -e "    1) Geführte Installation (empfohlen)"
+    echo -e "    2) Manuelle Installation (all.yml selbst bearbeiten)"
+    echo -ne "${BOLD}  Auswahl [1-2]: ${NC}"
+    read -r choice
 
     case "${choice}" in
         1) MODE="guided" ;;
@@ -267,12 +266,11 @@ config_components() {
 
     print_info "Was möchtest du installieren?"
     echo ""
-
-    local choice
-    choice=$(ask_choice "Komponenten wählen:" \
-        "Nur Repomanager" \
-        "Repomanager + Supply-Chain-Security (empfohlen)" \
-        "Nur Supply-Chain-Security (Repomanager bereits vorhanden)")
+    echo -e "    1) Nur Repomanager"
+    echo -e "    2) Repomanager + Supply-Chain-Security (empfohlen)"
+    echo -e "    3) Nur Supply-Chain-Security (Repomanager bereits vorhanden)"
+    echo -ne "${BOLD}  Auswahl [1-3]: ${NC}"
+    read -r choice
 
     case "${choice}" in
         1) INSTALL_REPOMANAGER=true;  INSTALL_SECURITY=false ;;
@@ -318,10 +316,10 @@ config_repomanager() {
 
     # Proxy
     if ask_yn "Möchtest du einen Proxy nutzen?"; then
-        local proxy_choice
-        proxy_choice=$(ask_choice "Proxy-Typ wählen:" \
-            "Externen Proxy nutzen (URL eingeben)" \
-            "Lokalen Squid-Proxy installieren")
+        echo -e "    1) Externen Proxy nutzen (URL eingeben)"
+        echo -e "    2) Lokalen Squid-Proxy installieren"
+        echo -ne "${BOLD}  Auswahl [1-2]: ${NC}"
+        read -r proxy_choice
 
         case "${proxy_choice}" in
             1)
