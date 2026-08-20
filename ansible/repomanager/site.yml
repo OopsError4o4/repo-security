@@ -1,0 +1,18 @@
+---
+# ============================================================
+# site.yml
+# Einstiegspunkt — Repomanager Deployment
+# ============================================================
+# Verwendung:
+#   cp inventory.example inventory
+#   cp group_vars/all.yml.example group_vars/all.yml
+#   # all.yml anpassen
+#   ansible-playbook -i inventory site.yml
+#
+# Einzelne Playbooks ausführen:
+#   ansible-playbook -i inventory 01_podman.yml
+# ============================================================
+
+- import_playbook: 01_podman.yml
+- import_playbook: 02_storage.yml
+- import_playbook: 03_repomanager.yml

@@ -1,0 +1,36 @@
+---
+# ============================================================
+# 01_podman.yml
+# Installiert Podman und konfiguriert den Socket
+# ============================================================
+
+- name: Install and configure Podman
+  hosts: repomanager
+  become: true
+
+  tasks:
+
+    - name: Install EPEL repository
+      ansible.builtin.dnf:
+        name: epel-release
+        state: present
+
+    - name: Install Podman and dependencies
+      ansible.builtin.dnf:
+        name:
+          - podman
+          - podman-compose
+          - python3-pip
+        state: present
+
+    - name: Enable and start Podman socket
+      ansible.builtin.systemd:
+        name: podman.socket
+        state: started
+        enabled: true
+
+    - name: Install docker-compose plugin for podman-compose compatibility
+      ansible.builtin.dnf:
+        name: docker-compose-plugin
+        state: present
+      ignore_errors: true

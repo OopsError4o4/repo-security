@@ -1,0 +1,81 @@
+---
+# ============================================================
+# 03_repomanager.yml
+# Deployt den Repomanager Container via Podman
+# ============================================================
+
+- name: Deploy Repomanager
+  hosts: repomanager
+  become: true
+
+  tasks:
+
+    - name: Create repomanager directory
+      ansible.builtin.file:
+        path: /root/repomanager
+        state: directory
+        mode: '0700'
+
+    - name: Deploy docker-compose.yml from template
+      ansible.builtin.template:
+        src: templates/docker-compose.yml.j2
+        dest: /root/repomanager/docker-compose.yml
+        mode: '0600'
+
+    - name: Pull repomanager image
+      containers.podman.podman_image:
+        name: "{{ repomanager_image }}"
+        state: present
+      environment:
+        HTTPS_PROXY: "{{ https_proxy | default('') }}"
+        HTTP_PROXY: "{{ http_proxy | default('') }}"
+
+    - name: Stop existing repomanager container
+      ansible.builtin.command:
+        cmd: podman rm -f repomanager
+      failed_when: false
+      changed_when: false
+
+    - name: Start repomanager via podman compose
+      ansible.builtin.shell:
+        cmd: podman compose up -d
+        chdir: /root/repomanager
+      environment:
+        HTTPS_PROXY: "{{ https_proxy | default('') }}"
+        HTTP_PROXY: "{{ http_proxy | default('') }}"
+
+    - name: Wait for repomanager to be ready
+      ansible.builtin.uri:
+        url: "http://localhost:{{ repomanager_port }}/login"
+        status_code: 200
+      register: result
+      until: result.status == 200
+      retries: 10
+      delay: 5
+
+    - name: Ensure repomanager restarts on boot via systemd
+      ansible.builtin.copy:
+        dest: /etc/systemd/system/repomanager.service
+        mode: '0644'
+        content: |
+          [Unit]
+          Description=Repomanager Container
+          After=network.target podman.socket
+          Requires=podman.socket
+
+          [Service]
+          Type=oneshot
+          RemainAfterExit=yes
+          WorkingDirectory=/root/repomanager
+          ExecStart=podman compose up -d
+          ExecStop=podman compose down
+          TimeoutStartSec=300
+
+          [Install]
+          WantedBy=multi-user.target
+
+    - name: Enable repomanager systemd service
+      ansible.builtin.systemd:
+        name: repomanager
+        enabled: true
+        daemon_reload: true

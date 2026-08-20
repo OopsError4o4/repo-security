@@ -1,0 +1,52 @@
+---
+# ============================================================
+# 02_storage.yml
+# Richtet die Datendisk für Repo-Daten ein
+# ============================================================
+
+- name: Setup storage
+  hosts: repomanager
+  become: true
+
+  tasks:
+
+    - name: Create GPT partition table on data disk
+      community.general.parted:
+        device: "{{ repomanager_data_disk }}"
+        label: gpt
+        state: present
+
+    - name: Create primary partition on data disk
+      community.general.parted:
+        device: "{{ repomanager_data_disk }}"
+        number: 1
+        state: present
+        fs_type: xfs
+        part_start: "1MiB"
+        part_end: "100%"
+
+    - name: Format partition as XFS
+      community.general.filesystem:
+        fstype: xfs
+        dev: "{{ repomanager_data_partition }}"
+        force: false
+
+    - name: Create mount point for repo data
+      ansible.builtin.file:
+        path: "{{ repomanager_repo_mount }}"
+        state: directory
+        mode: '0755'
+
+    - name: Get UUID of data partition
+      ansible.builtin.command:
+        cmd: blkid -s UUID -o value {{ repomanager_data_partition }}
+      register: partition_uuid
+      changed_when: false
+
+    - name: Mount data partition persistently via fstab
+      ansible.posix.mount:
+        path: "{{ repomanager_repo_mount }}"
+        src: "UUID={{ partition_uuid.stdout }}"
+        fstype: xfs
+        opts: defaults
+        state: mounted

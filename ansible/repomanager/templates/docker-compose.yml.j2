@@ -1,0 +1,25 @@
+---
+version: "3.8"
+
+services:
+  repomanager:
+    image: {{ repomanager_image }}
+    container_name: repomanager
+    restart: unless-stopped
+    ports:
+      - "{{ repomanager_port }}:8080"
+    environment:
+      - FQDN={{ repomanager_fqdn }}
+      - MAX_UPLOAD_SIZE={{ repomanager_max_upload_size }}
+{% if http_proxy is defined and http_proxy != "" %}
+      - HTTP_PROXY={{ http_proxy }}
+      - HTTPS_PROXY={{ https_proxy }}
+      - NO_PROXY={{ no_proxy }}
+{% endif %}
+    volumes:
+      - /etc/localtime:/etc/localtime:ro
+      - repomanager-data:/var/lib/repomanager
+      - {{ repomanager_repo_mount }}:/home/repo
+
+volumes:
+  repomanager-data:

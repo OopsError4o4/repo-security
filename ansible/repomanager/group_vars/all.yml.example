@@ -1,0 +1,29 @@
+---
+# ============================================================
+# all.yml
+# Variablen für das Repomanager Ansible-Deployment
+# ============================================================
+
+# --- Repomanager ---
+repomanager_fqdn: "repomanager.example.com"
+repomanager_port: "4747"
+repomanager_max_upload_size: "32M"
+repomanager_image: "docker.io/lbr38/repomanager:latest"
+
+# --- Storage ---
+# Gerätepfad der Daten-Disk (für Repo-Daten)
+repomanager_data_disk: "/dev/sdb"
+repomanager_data_partition: "/dev/sdb1"
+repomanager_repo_mount: "/mnt/repomanager-repo"
+
+# --- Podman Volumes ---
+# Docker:  /var/lib/docker/volumes
+# Podman:  /var/lib/containers/storage/volumes
+repomanager_volume_driver: "podman"
+repomanager_data_volume: "repomanager-data"
+
+# --- Proxy ---
+# Leer lassen wenn kein Proxy benötigt wird
+http_proxy: "http://proxy.example.com:3128"
+https_proxy: "http://proxy.example.com:3128"
+no_proxy: "localhost,127.0.0.1,10.0.0.0/8,172.16.0.0/12,192.168.0.0/16"
