@@ -27,3 +27,9 @@ repomanager_data_volume: "repomanager-data"
 http_proxy: "http://proxy.example.com:3128"
 https_proxy: "http://proxy.example.com:3128"
 no_proxy: "localhost,127.0.0.1,10.0.0.0/8,172.16.0.0/12,192.168.0.0/16"
+
+# --- SSL ---
+# Pfade zu den Zertifikaten auf dem Ansible-Controller
+# (werden auf den Zielhost kopiert)
+ssl_cert_src: "/path/to/repomanager.crt"
+ssl_key_src: "/path/to/repomanager.key"

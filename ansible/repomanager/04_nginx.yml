@@ -1,0 +1,72 @@
+---
+# ============================================================
+# 04_nginx.yml
+# Installiert Nginx als Reverse Proxy mit SSL für Repomanager
+# ============================================================
+
+- name: Setup Nginx reverse proxy with SSL
+  hosts: repomanager
+  become: true
+
+  tasks:
+
+    - name: Install Nginx
+      ansible.builtin.dnf:
+        name: nginx
+        state: present
+
+    - name: Create SSL directory
+      ansible.builtin.file:
+        path: /etc/nginx/ssl
+        state: directory
+        mode: '0700'
+
+    - name: Copy SSL certificate
+      ansible.builtin.copy:
+        src: "{{ ssl_cert_src }}"
+        dest: /etc/nginx/ssl/repomanager.crt
+        mode: '0644'
+      when: ssl_cert_src is defined and ssl_cert_src != ""
+
+    - name: Copy SSL private key
+      ansible.builtin.copy:
+        src: "{{ ssl_key_src }}"
+        dest: /etc/nginx/ssl/repomanager.key
+        mode: '0600'
+      when: ssl_key_src is defined and ssl_key_src != ""
+
+    - name: Deploy Nginx vhost config from template
+      ansible.builtin.template:
+        src: templates/nginx-repomanager.conf.j2
+        dest: /etc/nginx/conf.d/repomanager.conf
+        mode: '0644'
+
+    - name: Remove default Nginx config
+      ansible.builtin.file:
+        path: /etc/nginx/conf.d/default.conf
+        state: absent
+
+    - name: Test Nginx configuration
+      ansible.builtin.command:
+        cmd: nginx -t
+      changed_when: false
+
+    - name: Enable and start Nginx
+      ansible.builtin.systemd:
+        name: nginx
+        state: restarted
+        enabled: true
+
+    - name: Open firewall port 80
+      ansible.posix.firewalld:
+        port: 80/tcp
+        permanent: true
+        state: enabled
+        immediate: true
+
+    - name: Open firewall port 443
+      ansible.posix.firewalld:
+        port: 443/tcp
+        permanent: true
+        state: enabled
+        immediate: true

@@ -16,3 +16,4 @@
 - import_playbook: 01_podman.yml
 - import_playbook: 02_storage.yml
 - import_playbook: 03_repomanager.yml
+- import_playbook: 04_nginx.yml

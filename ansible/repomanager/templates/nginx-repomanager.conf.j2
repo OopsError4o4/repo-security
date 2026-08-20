@@ -1,0 +1,53 @@
+# ============================================================
+# nginx-repomanager.conf
+# Nginx Reverse Proxy für Repomanager mit SSL
+# Generiert durch Ansible — nicht manuell bearbeiten
+# ============================================================
+
+# HTTP → HTTPS Redirect
+server {
+    listen 80;
+    server_name {{ repomanager_fqdn }};
+    return 301 https://$host$request_uri;
+}
+
+# HTTPS
+server {
+    listen 443 ssl;
+    server_name {{ repomanager_fqdn }};
+
+    # SSL Zertifikate
+    ssl_certificate     /etc/nginx/ssl/repomanager.crt;
+    ssl_certificate_key /etc/nginx/ssl/repomanager.key;
+
+    # SSL Härtung
+    ssl_protocols       TLSv1.2 TLSv1.3;
+    ssl_ciphers         ECDHE-ECDSA-AES128-GCM-SHA256:ECDHE-RSA-AES128-GCM-SHA256:ECDHE-ECDSA-AES256-GCM-SHA384:ECDHE-RSA-AES256-GCM-SHA384;
+    ssl_prefer_server_ciphers on;
+    ssl_session_cache   shared:SSL:10m;
+    ssl_session_timeout 10m;
+
+    # Security Headers
+    add_header Strict-Transport-Security "max-age=31536000; includeSubDomains" always;
+    add_header X-Frame-Options "SAMEORIGIN" always;
+    add_header X-Content-Type-Options "nosniff" always;
+    add_header X-XSS-Protection "1; mode=block" always;
+
+    # Max Upload Size (muss mit Repomanager MAX_UPLOAD_SIZE übereinstimmen)
+    client_max_body_size {{ repomanager_max_upload_size }};
+
+    # Proxy zu Repomanager
+    location / {
+        proxy_pass http://127.0.0.1:{{ repomanager_port }};
+        proxy_http_version 1.1;
+        proxy_set_header Host $host;
+        proxy_set_header X-Real-IP $remote_addr;
+        proxy_set_header X-Forwarded-For $proxy_add_x_forwarded_for;
+        proxy_set_header X-Forwarded-Proto $scheme;
+        proxy_set_header Upgrade $http_upgrade;
+        proxy_set_header Connection "upgrade";
+        proxy_read_timeout 300s;
+        proxy_connect_timeout 300s;
+        proxy_send_timeout 300s;
+    }
+}
