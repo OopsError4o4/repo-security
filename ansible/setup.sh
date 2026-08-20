@@ -44,19 +44,19 @@ print_step() {
 }
 
 print_info() {
-    echo -e "${CYAN}  ℹ  $1${NC}"
+    echo -e "${CYAN}  [i] $1${NC}"
 }
 
 print_ok() {
-    echo -e "${GREEN}  ✔  $1${NC}"
+    echo -e "${GREEN}  [OK] $1${NC}"
 }
 
 print_warn() {
-    echo -e "${YELLOW}  ⚠  $1${NC}"
+    echo -e "${YELLOW}  [!] $1${NC}"
 }
 
 print_error() {
-    echo -e "${RED}  ✘  $1${NC}"
+    echo -e "${RED}  [X] $1${NC}"
 }
 
 ask() {
@@ -96,7 +96,7 @@ ask_choice() {
         echo -e "    ${i}) ${opt}"
         ((i++))
     done
-    echo -ne "${BOLD}  Auswahl: ${NC}"
+    echo -ne "${BOLD}  Auswahl [1-${#options[@]}]: ${NC}"
     read -r choice
     echo "${choice}"
 }
