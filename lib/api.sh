@@ -123,12 +123,13 @@ api_get_packages() {
 # Environment-Funktionen via SQLite
 # ============================================================
 
-# Environment-ID aus SQLite-DB lesen
+# repos_env ID ermitteln anhand snap_id und env_name
 api_get_env_id() {
-    local env_name="$1"
+    local snap_id="$1"
+    local env_name="$2"
 
     sqlite3 "${REPOMANAGER_DB_PATH}" \
-        "SELECT Id FROM env WHERE Name='${env_name}';"
+        "SELECT Id FROM repos_env WHERE Id_snap=${snap_id} AND Env='${env_name}';"
 }
 
 # ============================================================
@@ -141,10 +142,10 @@ api_point_environment() {
     local env_name="$3"
 
     local env_id
-    env_id=$(api_get_env_id "${env_name}")
+    env_id=$(api_get_env_id "${snap_id}" "${env_name}")
 
     if [ -z "${env_id}" ]; then
-        echo "FEHLER: Environment '${env_name}' nicht gefunden"
+        echo "FEHLER: Environment '${env_name}' für Snapshot '${snap_id}' nicht gefunden — möglicherweise noch nicht in repos_env eingetragen"
         return 1
     fi
 
@@ -159,11 +160,7 @@ api_point_environment() {
     response=$(curl -s \
         -b "${cookie_file}" \
         -X POST \
-        -F "controller=general" \
-        -F "action=get-panel" \
-        -F "name=repos/task" \
-        -F "params[action]=env" \
-        -F "params[repos]=${payload}" \
+        -d "controller=general&action=get-panel&name=repos/task&params[action]=env&params[repos]=${payload}" \
         "${REPOMANAGER_URL}/ajax/controller.php")
 
     rm -f "${cookie_file}"
