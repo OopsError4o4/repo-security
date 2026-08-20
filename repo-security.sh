@@ -245,7 +245,14 @@ main() {
                 "Promote wurde blockiert da mindestens ein Paket den Security-Check nicht bestanden hat."
         else
             log "INFO" "Alle Checks bestanden — Promote nach prod wird durchgeführt"
-            api_point_environment "${repo_id}" "${repo_id}" "prod"
+            local promote_response
+            promote_response=$(api_point_environment "${repo_id}" "${repo_id}" "prod")
+
+            if echo "${promote_response}" | grep -qi "FEHLER"; then
+                log "ERROR" "Promote fehlgeschlagen: ${promote_response}"
+                exit 1
+            fi
+
             db_log_promote "${repo_name}" "${snapshot_date}" "preprod" "prod" "promoted" "Alle Checks OK"
             alert_promoted "${repo_name}" "${snapshot_date}"
         fi
