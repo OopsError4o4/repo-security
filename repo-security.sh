@@ -187,7 +187,6 @@ main() {
     local scan_result
 
     for package_path in "${packages[@]}"; do
-        # Paketinfos aus Dateiname extrahieren
         local filename
         filename=$(basename "${package_path}")
 
@@ -204,15 +203,12 @@ main() {
         local checksum
         checksum=$(sha256sum "${package_path}" | awk '{print $1}')
 
-        # In DB eintragen
         db_insert_package "${repo_name}" "${snapshot_date}" \
             "${package_name}" "${package_version}" "${arch}" "${checksum}"
 
-        # Package-ID holen
         package_id=$(db_get_package_id "${repo_name}" "${snapshot_date}" \
             "${package_name}" "${package_version}" "${arch}")
 
-        # Bereits gescannt und OK? Überspringen
         local pkg_status
         pkg_status=$(mysql -h "${DB_HOST}" -P "${DB_PORT}" \
             -u "${DB_USER}" -p"${DB_PASS}" "${DB_NAME}" \
@@ -223,7 +219,6 @@ main() {
             continue
         fi
 
-        # Paket scannen
         scan_result=$(scan_package "${package_path}" "${package_id}" \
             "${repo_name}" "${package_name}" "${package_version}")
 
@@ -248,13 +243,17 @@ main() {
             local promote_response
             promote_response=$(api_point_environment "${repo_id}" "${repo_id}" "prod")
 
-            if echo "${promote_response}" | grep -qi "FEHLER"; then
+            if echo "${promote_response}" | grep -qi "already exists\|Task is running"; then
+                log "INFO" "Promote erfolgreich oder Environment bereits gesetzt."
+                db_log_promote "${repo_name}" "${snapshot_date}" "preprod" "prod" "promoted" "Alle Checks OK"
+                alert_promoted "${repo_name}" "${snapshot_date}"
+            elif echo "${promote_response}" | grep -qi "FEHLER\|error"; then
                 log "ERROR" "Promote fehlgeschlagen: ${promote_response}"
                 exit 1
+            else
+                db_log_promote "${repo_name}" "${snapshot_date}" "preprod" "prod" "promoted" "Alle Checks OK"
+                alert_promoted "${repo_name}" "${snapshot_date}"
             fi
-
-            db_log_promote "${repo_name}" "${snapshot_date}" "preprod" "prod" "promoted" "Alle Checks OK"
-            alert_promoted "${repo_name}" "${snapshot_date}"
         fi
     fi
 
