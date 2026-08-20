@@ -17,3 +17,4 @@
 - import_playbook: 02_storage.yml
 - import_playbook: 03_repomanager.yml
 - import_playbook: 04_nginx.yml
+- import_playbook: 05_proxy.yml

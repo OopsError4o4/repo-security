@@ -10,6 +10,11 @@ repomanager_port: "4747"
 repomanager_max_upload_size: "32M"
 repomanager_image: "docker.io/lbr38/repomanager:latest"
 
+# --- Repomanager Admin ---
+# Wird für API-Calls nach der Installation benötigt
+repomanager_admin_user: "admin"
+repomanager_admin_pass: "CHANGEME"
+
 # --- Storage ---
 # Gerätepfad der Daten-Disk (für Repo-Daten)
 repomanager_data_disk: "/dev/sdb"
