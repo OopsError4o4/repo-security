@@ -120,7 +120,7 @@ api_get_packages() {
 }
 
 # ============================================================
-# Environment-Funktionen via SQLite
+# Environment-Funktionen via SQLite (nicht mehr für Promote genutzt)
 # ============================================================
 
 # repos_env ID ermitteln anhand snap_id und env_name
@@ -152,26 +152,19 @@ api_point_environment() {
     local snap_id="$2"
     local env_name="$3"
 
-    local env_id
-    env_id=$(api_get_env_id "${snap_id}" "${env_name}")
-
-    if [ -z "${env_id}" ]; then
-        echo "FEHLER: Environment '${env_name}' nicht gefunden"
-        return 1
-    fi
-
     local cookie_file
     cookie_file=$(api_login)
 
-    local payload
-    payload=$(printf '[{"repo-id":"%s","snap-id":"%s","env-id":"%s"}]' \
-        "${repo_id}" "${snap_id}" "${env_id}")
+    local task_params
+    task_params=$(printf '[{"action":"env","repo-id":"%s","snap-id":"%s","env-id":"","env":["%s"],"description":"","schedule":{"scheduled":"false","schedule-type":"unique","schedule-date":"","schedule-time":"","schedule-notify-error":"true","schedule-notify-success":"true","schedule-reminder":["3","7"],"schedule-recipient":[]}}]' \
+        "${repo_id}" "${snap_id}" "${env_name}")
 
     local response
     response=$(curl -s \
         -b "${cookie_file}" \
+        -H "X-Requested-With: XMLHttpRequest" \
         -X POST \
-        -d "controller=general&action=get-panel&name=repos/task&params[action]=env&params[repos]=${payload}" \
+        -d "controller=task&action=validateForm&taskParams=${task_params}" \
         "${REPOMANAGER_URL}/ajax/controller.php")
 
     rm -f "${cookie_file}"
