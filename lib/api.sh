@@ -124,12 +124,23 @@ api_get_packages() {
 # ============================================================
 
 # repos_env ID ermitteln anhand snap_id und env_name
+# Fallback auf env-Tabelle wenn noch kein repos_env-Eintrag existiert
 api_get_env_id() {
     local snap_id="$1"
     local env_name="$2"
 
-    sqlite3 "${REPOMANAGER_DB_PATH}" \
-        "SELECT Id FROM repos_env WHERE Id_snap=${snap_id} AND Env='${env_name}';"
+    # Erst in repos_env suchen (bestehender Pointer)
+    local env_id
+    env_id=$(sqlite3 "${REPOMANAGER_DB_PATH}" \
+        "SELECT Id FROM repos_env WHERE Id_snap=${snap_id} AND Env='${env_name}';")
+
+    # Falls nicht gefunden, env-Tabelle als Fallback (erster Promote)
+    if [ -z "${env_id}" ]; then
+        env_id=$(sqlite3 "${REPOMANAGER_DB_PATH}" \
+            "SELECT Id FROM env WHERE Name='${env_name}';")
+    fi
+
+    echo "${env_id}"
 }
 
 # ============================================================
@@ -145,7 +156,7 @@ api_point_environment() {
     env_id=$(api_get_env_id "${snap_id}" "${env_name}")
 
     if [ -z "${env_id}" ]; then
-        echo "FEHLER: Environment '${env_name}' für Snapshot '${snap_id}' nicht gefunden — möglicherweise noch nicht in repos_env eingetragen"
+        echo "FEHLER: Environment '${env_name}' nicht gefunden"
         return 1
     fi
 
