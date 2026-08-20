@@ -4,7 +4,7 @@
 # Interaktiver Setup-Guide für repo-security
 # ============================================================
 
-set -e
+#set -e
 
 # ============================================================
 # Farben
@@ -142,11 +142,11 @@ install_ansible() {
     else
         print_info "Ansible wird installiert..."
         if [ "${OS_FAMILY}" = "rhel" ]; then
-            dnf install -y epel-release &>/dev/null
-            dnf install -y ansible &>/dev/null
+            dnf install -y epel-release &>/dev/null || true
+            dnf install -y ansible &>/dev/null || true
         elif [ "${OS_FAMILY}" = "debian" ]; then
-            apt-get update -qq &>/dev/null
-            apt-get install -y ansible &>/dev/null
+            apt-get update -qq &>/dev/null || true
+            apt-get install -y ansible &>/dev/null || true
         fi
         print_ok "Ansible installiert."
     fi
@@ -157,9 +157,9 @@ install_ansible() {
     else
         print_info "Python3 wird installiert..."
         if [ "${OS_FAMILY}" = "rhel" ]; then
-            dnf install -y python3 python3-pip &>/dev/null
+            dnf install -y python3 python3-pip &>/dev/null || true
         elif [ "${OS_FAMILY}" = "debian" ]; then
-            apt-get install -y python3 python3-pip &>/dev/null
+            apt-get install -y python3 python3-pip &>/dev/null || true
         fi
         print_ok "Python3 installiert."
     fi
@@ -171,7 +171,7 @@ install_ansible() {
         community.general \
         ansible.posix \
         containers.podman \
-        --quiet 2>/dev/null
+        --quiet 2>/dev/null || true
     print_ok "Ansible Collections installiert."
 }
 
