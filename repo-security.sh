@@ -7,6 +7,12 @@
 SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 
 source "${SCRIPT_DIR}/conf/repo-security.conf"
+
+# --- Proxy exportieren (für Trivy, Grype, ClamAV, git) ---
+if [ -n "${HTTP_PROXY}" ];  then export HTTP_PROXY;  fi
+if [ -n "${HTTPS_PROXY}" ]; then export HTTPS_PROXY; fi
+if [ -n "${NO_PROXY}" ];    then export NO_PROXY;     fi
+
 source "${SCRIPT_DIR}/lib/db.sh"
 source "${SCRIPT_DIR}/lib/api.sh"
 source "${SCRIPT_DIR}/lib/alert.sh"

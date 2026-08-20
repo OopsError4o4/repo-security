@@ -45,4 +45,13 @@ REPOMANAGER_USER="admin"
 REPOMANAGER_PASS="CHANGEME"
 
 # --- SQLite DB Pfad ---
+# Docker:  /var/lib/docker/volumes/repomanager_repomanager-data/_data/db/repomanager.db
+# Podman:  /var/lib/containers/storage/volumes/repomanager_repomanager-data/_data/db/repomanager.db
 REPOMANAGER_DB_PATH="/var/lib/docker/volumes/repomanager_repomanager-data/_data/db/repomanager.db"
+
+# --- Proxy ---
+# Für Trivy, Grype, ClamAV (freshclam), git (YARA-Rules-Update)
+# Leer lassen wenn kein Proxy benötigt wird
+HTTP_PROXY="http://proxy.example.com:3128"
+HTTPS_PROXY="http://proxy.example.com:3128"
+NO_PROXY="localhost,127.0.0.1,10.0.0.0/8,172.16.0.0/12,192.168.0.0/16"

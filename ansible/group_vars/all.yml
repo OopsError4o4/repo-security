@@ -1,0 +1,60 @@
+---
+# ============================================================
+# all.yml
+# Variablen für die repo-security Ansible-Deployments
+# ============================================================
+
+# --- Repomanager ---
+repomanager_url: "http://YOUR_REPOMANAGER_IP:PORT"
+repomanager_api_key: "ak_CHANGEME"
+repomanager_user: "admin"
+repomanager_pass: "CHANGEME"
+# Docker:  /var/lib/docker/volumes/repomanager_repomanager-data/_data/db/repomanager.db
+# Podman:  /var/lib/containers/storage/volumes/repomanager_repomanager-data/_data/db/repomanager.db
+repomanager_db_path: "/var/lib/docker/volumes/repomanager_repomanager-data/_data/db/repomanager.db"
+
+# --- MariaDB ---
+db_host: "localhost"
+db_port: "3306"
+db_name: "repo_security"
+db_user: "repo_security"
+db_pass: "CHANGEME"
+
+# --- Alert ---
+alert_mail_to: "admin@example.com"
+alert_mail_from: "repo-security@example.com"
+alert_mail_smtp: "localhost"
+
+# --- Wazuh ---
+wazuh_agent_log: "/var/ossec/logs/active-responses.log"
+
+# --- Proxy ---
+http_proxy: "http://proxy.example.com:3128"
+https_proxy: "http://proxy.example.com:3128"
+no_proxy: "localhost,127.0.0.1,10.0.0.0/8,172.16.0.0/12,192.168.0.0/16"
+
+# --- Scan-Tools ---
+scan_trivy: "true"
+scan_grype: "true"
+scan_clamav: "true"
+scan_yara: "true"
+scan_rkhunter: "false"
+scan_chkrootkit: "false"
+scan_bandit: "false"
+scan_cppcheck: "true"
+
+# --- repo-security ---
+repo_security_dir: "/opt/repo-security"
+repo_security_git_url: "https://github.com/OopsError4o4/repo-security.git"
+yara_rules_git_url: "https://github.com/Neo23x0/signature-base.git"
+
+# --- Cron ---
+# Täglich um 02:00 Uhr
+cron_hour: "2"
+cron_minute: "0"
+# Repos die täglich gescannt und promoted werden sollen
+cron_repos:
+  - almalinux10-baseos
+  - almalinux10-appstream
+  - almalinux10-crb
+  - almalinux10-extras
