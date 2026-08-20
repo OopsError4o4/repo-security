@@ -133,6 +133,70 @@ detect_os() {
     fi
 }
 
+check_prerequisites() {
+    print_step "Voraussetzungen prüfen"
+
+    local errors=0
+
+    # Zweite Disk prüfen
+    local disk_count
+    disk_count=$(lsblk -d -o NAME,TYPE | grep -c disk)
+
+    if [ "${disk_count}" -lt 2 ]; then
+        print_error "Keine zweite Disk gefunden — für Repomanager wird eine dedizierte Datendisk benötigt."
+        print_info "Verfügbare Disks:"
+        lsblk -d -o NAME,SIZE,TYPE | grep disk
+        ((errors++))
+    else
+        print_ok "Zweite Disk gefunden."
+        lsblk -d -o NAME,SIZE,TYPE | grep disk
+    fi
+
+    # Prüfen ob zweite Disk bereits gemountet ist
+    local second_disk
+    second_disk=$(lsblk -d -o NAME,TYPE | grep disk | tail -1 | awk '{print $1}')
+    if lsblk "/dev/${second_disk}" | grep -q "/"; then
+        print_warn "Disk /dev/${second_disk} ist bereits gemountet — stelle sicher dass sie für Repomanager-Daten genutzt werden kann."
+    else
+        print_ok "Disk /dev/${second_disk} ist noch nicht gemountet."
+    fi
+
+    # Mindest-RAM prüfen (4GB)
+    local total_ram
+    total_ram=$(free -m | awk '/^Mem:/{print $2}')
+    if [ "${total_ram}" -lt 3800 ]; then
+        print_warn "Weniger als 4GB RAM verfügbar (${total_ram}MB) — Repomanager empfiehlt mindestens 4GB."
+    else
+        print_ok "RAM: ${total_ram}MB verfügbar."
+    fi
+
+    # Mindest-Speicherplatz auf OS-Disk prüfen (20GB)
+    local free_space
+    free_space=$(df -BG / | awk 'NR==2{print $4}' | tr -d 'G')
+    if [ "${free_space}" -lt 20 ]; then
+        print_warn "Weniger als 20GB freier Speicher auf OS-Disk (${free_space}GB)."
+    else
+        print_ok "Freier Speicher auf OS-Disk: ${free_space}GB."
+    fi
+
+    # Internetzugang prüfen
+    if curl -s --max-time 5 https://example.com &>/dev/null; then
+        print_ok "Internetzugang verfügbar."
+    else
+        print_warn "Kein direkter Internetzugang — Proxy wird möglicherweise benötigt."
+    fi
+
+    echo ""
+    if [ "${errors}" -gt 0 ]; then
+        print_error "${errors} kritische Voraussetzung(en) nicht erfüllt."
+        if ! ask_yn "Trotzdem fortfahren?"; then
+            exit 1
+        fi
+    else
+        print_ok "Alle Voraussetzungen erfüllt."
+    fi
+}
+
 install_ansible() {
     print_step "Schritt 1/6: Voraussetzungen prüfen"
 
@@ -549,6 +613,7 @@ main() {
     print_banner
     check_root
     detect_os
+    check_prerequisites
     install_ansible
     config_mode
 
