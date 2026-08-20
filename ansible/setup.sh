@@ -161,6 +161,13 @@ check_prerequisites() {
         print_ok "Disk /dev/${second_disk} ist noch nicht gemountet."
     fi
 
+    # Prüfen ob zweite Disk in fstab eingetragen ist
+    if grep -q "/dev/${second_disk}\|UUID=" /etc/fstab | grep -q "${second_disk}"; then
+        print_ok "Disk /dev/${second_disk} ist in /etc/fstab eingetragen."
+    else
+        print_warn "Disk /dev/${second_disk} ist NICHT in /etc/fstab — nach Reboot nicht mehr gemountet."
+    fi
+
     # Mindest-RAM prüfen (4GB)
     local total_ram
     total_ram=$(free -m | awk '/^Mem:/{print $2}')
