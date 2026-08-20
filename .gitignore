@@ -1,4 +1,4 @@
 conf/repo-security.conf
 logs/*.log
 /tmp/repo-security-extract/
-yara-rules/
+yara-rules/ansible/group_vars/all.yml
