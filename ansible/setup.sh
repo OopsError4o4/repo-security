@@ -363,6 +363,8 @@ config_repomanager() {
     echo ""
     print_info "Welche Disk soll für Repo-Daten genutzt werden? (siehe oben)"
     REPOMANAGER_DATA_DISK=$(ask "Datendisk für Repo-Daten" "/dev/sdb")
+    # /dev/ Prefix sicherstellen
+    [[ "${REPOMANAGER_DATA_DISK}" != /dev/* ]] && REPOMANAGER_DATA_DISK="/dev/${REPOMANAGER_DATA_DISK}"
     REPOMANAGER_DATA_PARTITION="${REPOMANAGER_DATA_DISK}1"
     print_info "Disk-Mount-Point: /mnt/repomanager-repo"
     REPOMANAGER_REPO_MOUNT="/mnt/repomanager-repo"
