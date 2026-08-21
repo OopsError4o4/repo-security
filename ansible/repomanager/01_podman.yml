@@ -33,4 +33,4 @@
       ansible.builtin.dnf:
         name: docker-compose-plugin
         state: present
-      ignore_errors: true
+      failed_when: false
