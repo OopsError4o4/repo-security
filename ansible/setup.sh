@@ -65,9 +65,9 @@ ask() {
     local answer
 
     if [ -n "${default}" ]; then
-        echo -ne "${BOLD}  → ${question} [${default}]: ${NC}"
+        echo -ne "${BOLD}  → ${question} [${default}]: ${NC}" >&2
     else
-        echo -ne "${BOLD}  → ${question}: ${NC}"
+        echo -ne "${BOLD}  → ${question}: ${NC}" >&2
     fi
 
     read -r answer
