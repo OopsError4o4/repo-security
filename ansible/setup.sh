@@ -245,8 +245,7 @@ install_ansible() {
         community.mysql \
         community.general \
         ansible.posix \
-        containers.podman \
-        --quiet 2>/dev/null || true
+        containers.podman 2>&1 | grep -E "was installed|ERROR|error" || true
     print_ok "Ansible Collections installiert."
 }
 
