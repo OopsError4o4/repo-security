@@ -365,8 +365,10 @@ config_repomanager() {
     REPOMANAGER_REPO_MOUNT="/mnt/repomanager-repo"
 
     # Image
-    print_info "Welches Docker-Image soll für Repomanager genutzt werden?"
-    REPOMANAGER_IMAGE=$(ask "Repomanager Docker-Image" "docker.io/lbr38/repomanager:latest")
+    print_info "Repomanager Image-Version — 'latest' oder eine spezifische Version z.B. '5.8.0'."
+    print_info "Verfügbare Tags: https://hub.docker.com/r/lbr38/repomanager/tags"
+    REPOMANAGER_IMAGE=$(ask "Repomanager Image-Tag" "latest")
+    REPOMANAGER_IMAGE="docker.io/lbr38/repomanager:${REPOMANAGER_IMAGE}"
 }
 
 config_security() {
