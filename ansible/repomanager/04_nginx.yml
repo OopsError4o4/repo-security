@@ -4,11 +4,19 @@
 # Installiert Nginx als Reverse Proxy mit SSL für Repomanager
 # ============================================================
 
+
 - name: Setup Nginx reverse proxy with SSL
   hosts: repomanager
   become: true
 
+  vars:
+    _install_ssl: "{{ install_ssl | default(false) | bool }}"
+
   tasks:
+
+    - name: Skip if SSL disabled
+      ansible.builtin.meta: end_play
+      when: not _install_ssl
 
     - name: Install Nginx
       ansible.builtin.dnf:
