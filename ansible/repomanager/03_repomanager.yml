@@ -53,6 +53,14 @@
       retries: 10
       delay: 5
 
+    - name: Set admin password
+      ansible.builtin.shell:
+        cmd: |
+          HASH=$(podman exec repomanager php -r "echo password_hash('{{ repomanager_admin_pass }}', PASSWORD_BCRYPT);")
+          sqlite3 /var/lib/containers/storage/volumes/{{ repomanager_data_volume }}_repomanager-data/_data/db/repomanager.db \
+            "UPDATE users SET password='${HASH}' WHERE username='{{ repomanager_admin_user }}';"
+      changed_when: true
+
     - name: Ensure repomanager restarts on boot via systemd
       ansible.builtin.copy:
         dest: /etc/systemd/system/repomanager.service
