@@ -19,7 +19,7 @@ services:
     volumes:
       - /etc/localtime:/etc/localtime:ro
       - repomanager-data:/var/lib/repomanager
-      - {{ repomanager_repo_mount }}:/home/repo
+      - {{ repomanager_repo_mount }}:/home/repo:z
 
 volumes:
   repomanager-data:
