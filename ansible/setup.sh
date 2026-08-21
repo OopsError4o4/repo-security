@@ -571,26 +571,29 @@ run_ansible() {
 
     local target_ip
     print_info "IP oder Hostname des Ziel-Hosts auf dem installiert werden soll:"
+    print_info "Tipp: 'localhost' wenn du auf diesem Host installierst."
     target_ip=$(ask "Ziel-Host IP/Hostname" "localhost")
 
     local ansible_user
     print_info "SSH-Benutzer für die Verbindung zum Ziel-Host:"
     ansible_user=$(ask "SSH-User" "root")
 
+    # Verbindungstyp ermitteln
+    local connection_type="ssh"
+    if [ "${target_ip}" = "localhost" ] || [ "${target_ip}" = "127.0.0.1" ]; then
+        connection_type="local"
+    fi
+
     # Inventory erstellen
     if [ "${INSTALL_REPOMANAGER}" = "true" ]; then
         local inventory="${script_dir}/repomanager/inventory"
-        cat > "${inventory}" <<EOF
-[repomanager]
-${target_ip} ansible_user=${ansible_user}
-EOF
+        printf '[repomanager]\n%s ansible_user=%s ansible_connection=%s\n' \
+            "${target_ip}" "${ansible_user}" "${connection_type}" > "${inventory}"
         local playbook="${script_dir}/repomanager/site.yml"
     else
         local inventory="${script_dir}/inventory"
-        cat > "${inventory}" <<EOF
-[repo_security]
-${target_ip} ansible_user=${ansible_user}
-EOF
+        printf '[repo_security]\n%s ansible_user=%s ansible_connection=%s\n' \
+            "${target_ip}" "${ansible_user}" "${connection_type}" > "${inventory}"
         local playbook="${script_dir}/site.yml"
     fi
 
