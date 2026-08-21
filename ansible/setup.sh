@@ -511,6 +511,7 @@ https_proxy: "${HTTPS_PROXY:-}"
 no_proxy: "${NO_PROXY:-}"
 
 # --- SSL ---
+install_ssl: "${INSTALL_SSL:-false}"
 ssl_cert_src: "${SSL_CERT_SRC:-}"
 ssl_key_src: "${SSL_KEY_SRC:-}"
 
