@@ -361,8 +361,8 @@ config_repomanager() {
     print_info "Welche Disk soll für Repo-Daten genutzt werden? (siehe oben)"
     REPOMANAGER_DATA_DISK=$(ask "Datendisk für Repo-Daten" "/dev/sdb")
     REPOMANAGER_DATA_PARTITION="${REPOMANAGER_DATA_DISK}1"
-    print_info "Wo sollen die Repo-Daten gemountet werden?"
-    REPOMANAGER_REPO_MOUNT=$(ask "Mountpoint für Repo-Daten" "/mnt/repomanager-repo")
+    print_info "Disk-Mount-Point: /mnt/repomanager-repo"
+    REPOMANAGER_REPO_MOUNT="/mnt/repomanager-repo"
 
     # Image
     print_info "Welches Docker-Image soll für Repomanager genutzt werden?"
