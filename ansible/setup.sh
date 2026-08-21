@@ -310,12 +310,15 @@ config_repomanager() {
     REPOMANAGER_PORT=$(ask "Port" "4747")
 
     # Admin-Passwort
+    print_info "Admin-Passwort für den Repomanager-Benutzer 'admin' setzen:"
     REPOMANAGER_ADMIN_PASS=$(ask "Admin-Passwort" "repomanager")
 
     # SSL
     if ask_yn "Möchtest du SSL/HTTPS aktivieren? (Nginx Reverse Proxy)"; then
         INSTALL_SSL=true
+        print_info "Pfad zum SSL-Zertifikat auf diesem Host (.crt):"
         SSL_CERT_SRC=$(ask "Pfad zum SSL-Zertifikat (.crt)" "/etc/ssl/certs/repomanager.crt")
+        print_info "Pfad zum SSL-Private-Key auf diesem Host (.key):"
         SSL_KEY_SRC=$(ask "Pfad zum SSL-Key (.key)" "/etc/ssl/private/repomanager.key")
     else
         INSTALL_SSL=false
@@ -332,6 +335,7 @@ config_repomanager() {
 
         case "${proxy_choice}" in
             1)
+                print_info "Proxy-URL eingeben (z.B. http://proxy.example.com:3128):"
                 HTTP_PROXY=$(ask "Proxy-URL" "http://proxy.example.com:3128")
                 HTTPS_PROXY="${HTTP_PROXY}"
                 INSTALL_SQUID=false
@@ -354,11 +358,14 @@ config_repomanager() {
     print_info "Verfügbare Disks:"
     lsblk -d -o NAME,SIZE,TYPE | grep disk
     echo ""
+    print_info "Welche Disk soll für Repo-Daten genutzt werden? (siehe oben)"
     REPOMANAGER_DATA_DISK=$(ask "Datendisk für Repo-Daten" "/dev/sdb")
     REPOMANAGER_DATA_PARTITION="${REPOMANAGER_DATA_DISK}1"
+    print_info "Wo sollen die Repo-Daten gemountet werden?"
     REPOMANAGER_REPO_MOUNT=$(ask "Mountpoint für Repo-Daten" "/mnt/repomanager-repo")
 
     # Image
+    print_info "Welches Docker-Image soll für Repomanager genutzt werden?"
     REPOMANAGER_IMAGE=$(ask "Repomanager Docker-Image" "docker.io/lbr38/repomanager:latest")
 }
 
@@ -398,6 +405,7 @@ config_security() {
 
     # MariaDB
     echo ""
+    print_info "Passwort für den MariaDB-Benutzer 'repo_security' setzen:"
     DB_PASS=$(ask "MariaDB-Passwort für repo_security User" "CHANGEME")
 
     # Repomanager-Verbindung
@@ -557,9 +565,11 @@ run_ansible() {
     print_info "Inventory wird erstellt..."
 
     local target_ip
+    print_info "IP oder Hostname des Ziel-Hosts auf dem installiert werden soll:"
     target_ip=$(ask "Ziel-Host IP/Hostname" "localhost")
 
     local ansible_user
+    print_info "SSH-Benutzer für die Verbindung zum Ziel-Host:"
     ansible_user=$(ask "SSH-User" "root")
 
     # Inventory erstellen
