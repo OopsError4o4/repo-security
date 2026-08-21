@@ -222,6 +222,10 @@ install_ansible() {
         print_ok "Ansible installiert."
     fi
 
+    # PATH aktualisieren
+    export PATH="${PATH}:/usr/bin:/usr/local/bin"
+    hash -r
+
     # Python3 prüfen
     if command -v python3 &>/dev/null; then
         print_ok "Python3 bereits installiert."
@@ -595,6 +599,8 @@ EOF
     print_info "Starte Ansible-Deployment..."
     echo ""
 
+    export PATH="${PATH}:/usr/bin:/usr/local/bin"
+    hash -r
     ansible-playbook -i "${inventory}" "${playbook}"
 }
 
