@@ -301,7 +301,8 @@ config_repomanager() {
     if ask_yn "Möchtest du einen FQDN nutzen (statt IP-Adresse)?"; then
         REPOMANAGER_FQDN=$(ask "FQDN" "repomanager.example.com")
     else
-        REPOMANAGER_FQDN=$(ask "IP-Adresse des Servers")
+        print_info "Bitte die IP-Adresse des Servers eingeben:"
+        REPOMANAGER_FQDN=$(ask "IP-Adresse" "10.0.0.1")
     fi
 
     # Port
