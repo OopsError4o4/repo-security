@@ -305,7 +305,9 @@ config_repomanager() {
         REPOMANAGER_FQDN=$(ask "FQDN" "repomanager.example.com")
     else
         print_info "Bitte die IP-Adresse des Servers eingeben:"
+        print_warn "Hinweis: Intern wird 'repomanager.local' als Container-Hostname verwendet."
         REPOMANAGER_FQDN=$(ask "IP-Adresse" "10.0.0.1")
+        REPOMANAGER_CONTAINER_FQDN="repomanager.local"
     fi
 
     # Port
@@ -479,6 +481,12 @@ generate_config() {
 
     mkdir -p "${config_dir}"
 
+    # Container-FQDN ermitteln — Postfix akzeptiert keine IP als myhostname
+    local container_fqdn="${REPOMANAGER_FQDN}"
+    if [[ "${REPOMANAGER_FQDN}" =~ ^[0-9]+\.[0-9]+\.[0-9]+\.[0-9]+$ ]]; then
+        container_fqdn="repomanager.local"
+    fi
+
     cat > "${config_dir}/all.yml" <<EOF
 ---
 # ============================================================
@@ -488,6 +496,7 @@ generate_config() {
 
 # --- Repomanager ---
 repomanager_fqdn: "${REPOMANAGER_FQDN:-repomanager.example.com}"
+repomanager_container_fqdn: "${container_fqdn}"
 repomanager_port: "${REPOMANAGER_PORT:-4747}"
 repomanager_max_upload_size: "32M"
 repomanager_image: "${REPOMANAGER_IMAGE:-docker.io/lbr38/repomanager:latest}"
