@@ -62,7 +62,7 @@
       ansible.builtin.shell:
         cmd: |
           HASH=$(podman exec repomanager php -r "echo password_hash('{{ repomanager_admin_pass }}', PASSWORD_BCRYPT);")
-          sqlite3 /var/lib/containers/storage/volumes/{{ repomanager_data_volume }}_repomanager-data/_data/db/repomanager.db \
+          sqlite3 /var/lib/containers/storage/volumes/repomanager_repomanager-data/_data/db/repomanager.db \
             "UPDATE users SET password='${HASH}' WHERE username='{{ repomanager_admin_user }}';"
       changed_when: true
 
