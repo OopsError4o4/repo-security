@@ -306,6 +306,7 @@ config_repomanager() {
     fi
 
     # Port
+    print_info "Auf welchem Port soll Repomanager lauschen?"
     REPOMANAGER_PORT=$(ask "Port" "4747")
 
     # Admin-Passwort
