@@ -50,3 +50,7 @@
         fstype: xfs
         opts: defaults
         state: mounted
+
+    - name: Reload systemd daemon after fstab change
+      ansible.builtin.systemd:
+        daemon_reload: true
