@@ -606,6 +606,11 @@ run_ansible() {
     export PATH="${PATH}:/usr/bin:/usr/local/bin"
     hash -r
     ansible-playbook -i "${inventory}" "${playbook}"
+
+    if [ "${INSTALL_SSL}" = "true" ]; then
+        print_info "SSL aktiviert — starte Nginx-Deployment..."
+        ansible-playbook -i "${inventory}" "${script_dir}/repomanager/04_nginx.yml"
+    fi
 }
 
 # ============================================================
