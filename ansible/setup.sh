@@ -569,6 +569,50 @@ cron_repos:
 EOF
 
     print_ok "Konfiguration generiert: ${config_dir}/all.yml"
+
+    # Security all.yml generieren wenn benötigt
+    if [ "${INSTALL_SECURITY}" = "true" ]; then
+        local security_config_dir="${script_dir}/group_vars"
+        mkdir -p "${security_config_dir}"
+        cat > "${security_config_dir}/all.yml" <<SECEOF
+---
+# ============================================================
+# all.yml (repo-security)
+# Generiert durch setup.sh am $(date '+%Y-%m-%d %H:%M:%S')
+# ============================================================
+
+repomanager_url: "http://${REPOMANAGER_FQDN}:${REPOMANAGER_PORT:-4747}"
+repomanager_api_key: "ak_CHANGEME"
+repomanager_user: "${REPOMANAGER_ADMIN_USER:-admin}"
+repomanager_pass: "${REPOMANAGER_ADMIN_PASS:-repomanager}"
+repomanager_db_path: "/var/lib/containers/storage/volumes/repomanager_repomanager-data/_data/db/repomanager.db"
+db_host: "localhost"
+db_port: "3306"
+db_name: "repo_security"
+db_user: "repo_security"
+db_pass: "${DB_PASS:-CHANGEME}"
+http_proxy: "${HTTP_PROXY:-}"
+https_proxy: "${HTTPS_PROXY:-}"
+no_proxy: "${NO_PROXY:-}"
+scan_trivy: "${SCAN_TRIVY:-true}"
+scan_grype: "${SCAN_GRYPE:-true}"
+scan_clamav: "${SCAN_CLAMAV:-true}"
+scan_yara: "${SCAN_YARA:-true}"
+scan_rkhunter: "false"
+scan_chkrootkit: "false"
+scan_bandit: "false"
+scan_cppcheck: "${SCAN_CPPCHECK:-true}"
+yara_rules_git_url: "${YARA_RULES_GIT_URL:-https://github.com/Neo23x0/signature-base.git}"
+repo_security_dir: "/opt/repo-security"
+repo_security_git_url: "https://github.com/OopsError4o4/repo-security.git"
+cron_hour: "2"
+cron_minute: "0"
+cron_repos:
+  - almalinux10-baseos
+  - almalinux10-appstream
+SECEOF
+        print_ok "Security-Konfiguration generiert: ${security_config_dir}/all.yml"
+    fi
 }
 
 # ============================================================
