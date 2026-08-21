@@ -734,6 +734,15 @@ main() {
     echo ""
     print_ok "Installation abgeschlossen!"
     echo ""
+    echo ""
+    print_warn "Manuelle Schritte nach der Installation:"
+    echo ""
+    echo "  1. Repomanager WebUI öffnen: http://${REPOMANAGER_FQDN}:${REPOMANAGER_PORT:-4747}"
+    echo "  2. Einloggen mit: ${REPOMANAGER_ADMIN_USER:-admin} / [dein Passwort]"
+    echo "  3. Oben rechts: Profil → API Key generieren"
+    echo "  4. API Key eintragen in: /opt/repo-security/conf/repo-security.conf"
+    echo "     REPOMANAGER_API_KEY=\"ak_...\""
+    echo ""
 }
 
 main "$@"
