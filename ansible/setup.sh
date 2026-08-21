@@ -214,7 +214,7 @@ install_ansible() {
         print_info "Ansible wird installiert..."
         if [ "${OS_FAMILY}" = "rhel" ]; then
             dnf install -y epel-release &>/dev/null || true
-            dnf install -y ansible &>/dev/null || true
+            dnf install -y ansible-core &>/dev/null || true
         elif [ "${OS_FAMILY}" = "debian" ]; then
             apt-get update -qq &>/dev/null || true
             apt-get install -y ansible &>/dev/null || true
