@@ -621,6 +621,14 @@ run_ansible() {
         print_info "SSL aktiviert — starte Nginx-Deployment..."
         ansible-playbook -i "${inventory}" "${script_dir}/repomanager/04_nginx.yml"
     fi
+
+    if [ "${INSTALL_SECURITY}" = "true" ]; then
+        print_info "Supply-Chain-Security wird installiert..."
+        local security_inventory="${script_dir}/inventory"
+        printf '[repo_security]\n%s ansible_user=%s ansible_connection=%s\n' \
+            "${target_ip}" "${ansible_user}" "${connection_type}" > "${security_inventory}"
+        ansible-playbook -i "${security_inventory}" "${script_dir}/site.yml"
+    fi
 }
 
 # ============================================================
