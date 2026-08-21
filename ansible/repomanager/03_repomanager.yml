@@ -10,6 +10,11 @@
 
   tasks:
 
+    - name: Install sqlite3
+      ansible.builtin.dnf:
+        name: sqlite
+        state: present  
+
     - name: Create repomanager directory
       ansible.builtin.file:
         path: /root/repomanager
